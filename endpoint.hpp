@@ -36,7 +36,7 @@ typedef struct str_trigger {
 
 class Endpoint {
   private:
-    char* pincode;
+    char* pincode = "12345";
     Reader* reader;
     
     str_trigger* trigger;
@@ -65,6 +65,9 @@ class Endpoint {
     Endpoint(Reader* r) {
       this->reader = r;
     }
+    void setPin(char* pin){
+      this->pincode = pin;
+    }
     void read() {
       char* line = reader->read();
       if (line == NULL) return;
@@ -73,13 +76,18 @@ class Endpoint {
       if (strcmp(cmd, "CONNECT") == 0) {
         char* pin = strtok(NULL, " ");
         if (strcmp(pin,this->pincode)==0){
-          
+          Serial.println("ACCESS OK");
+        } else {
+          Serial.println("ACCESS DENY");
         }
-      }
+        
+      } else
 
       if (strcmp(cmd, "CALL") == 0) {
         char* trigname = strtok(NULL, " ");
-
+        
+      } else {
+        Serial.write("INCORRECT PROTO");
       }
 
 
