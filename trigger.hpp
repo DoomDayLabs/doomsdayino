@@ -13,6 +13,9 @@ class Param {
     const char* def() {
       return this->d;
     }
+    bool validate(){
+      return true;
+    }
 };
 
 
@@ -98,11 +101,26 @@ class FlagParam: public Param {
 };
 
 
+class AbstractTrigger {
+  protected:
+    const char* name;
+    void setName(const char* n) {
+      this->name = n;
+    }
+  public:
+    void call(char* cmd) {
+    }
+
+    const char* getName() {
+      return name;
+    }
+
+    virtual bool validateParam(int num) = 0;
+};
 
 template<int paramsCount>
-class Trigger {
+class Trigger: public AbstractTrigger {
   private:
-    const char* name;
     char* def;
     Param* params[paramsCount];
   public:
@@ -110,14 +128,14 @@ class Trigger {
       va_list ap;
       va_start(ap, name);
 
-      this->name = name;
+      setName(name);
       char buff[1024];
       sprintf(buff, "TRIGGER %s ", name);
-      
-      for (int i = 0; i < paramsCount; i++) {       
-        Param* p = va_arg(ap,Param*);
-        params[i] = p;        
-        strcat(buff,p->def());
+
+      for (int i = 0; i < paramsCount; i++) {
+        Param* p = va_arg(ap, Param*);
+        params[i] = p;
+        strcat(buff, p->def());
       }
 
       va_end(ap);
@@ -125,6 +143,12 @@ class Trigger {
       strcpy(def, buff);
     }
 
+
+    bool validateParam(int n) {
+      Param* p = params[n];
+      
+      return p->validate();
+    }
     const char* getDef() {
       return def;
     }
