@@ -1,8 +1,5 @@
 #include <stdarg.h>
-#include "device.hpp"
-
-
-
+#include "protocol.hpp"
 
 
 
@@ -10,25 +7,30 @@
 Endpoint e = Endpoint();
 Protocol proto = Protocol(&e, new Reader(&Serial));
 
-void callback1(){
-  Serial.println("!!CALLBACK1!!");
-}
+
+//IntSensor temp("TEMP",10,100);
+Trigger<0> t1("T1");
+Trigger<1> t2("T2", new IntParam(10, 100));
+
+
 
 void setup() {
   pinMode(PC13, OUTPUT);
   Serial.begin(115200);
-  setup(&e);
+  e.addTrigger(&t1);
+  e.addTrigger(&t2);
   e.setPin("111");
+
 }
 
 
 
 void loop() {
-  
-  
+
+
   proto.read();
 
-  loop(&e);
+
   proto.write();
 
   digitalWrite(PC13, LOW);

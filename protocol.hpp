@@ -31,13 +31,13 @@ class Protocol {
     Endpoint* endpoint;
     Reader* reader;
 
-    void callTrigger(){
-      char* triggerName = strtok(NULL," ");
+    void callTrigger() {
+      char* triggerName = strtok(NULL, " ");
       Serial.print("Trigger=");
       Serial.println(triggerName);
-      
+
       AbstractTrigger* trigger = endpoint->findTrigger(triggerName);
-      if (trigger==NULL) return;
+      if (trigger == NULL) return;
       Serial.println("Trigger found");
       //trigger->call();
       int paramCount = trigger->getParamsCount();
@@ -45,53 +45,54 @@ class Protocol {
 
       Serial.println("PARAMS:");
       Serial.println(paramCount);
-      for (int i=0;i<paramCount;i++){
-        char* param = strtok(NULL," ");
+      for (int i = 0; i < paramCount; i++) {
+        char* param = strtok(NULL, " ");
         strParams[i] = param;
         Serial.print(i);
         Serial.print("=");
-        Serial.println(param);  
+        Serial.println(param);
       }
+
       Serial.println("VALIDATE");
-      for (int i=0;i<paramCount;i++){
+      for (int i = 0; i < paramCount; i++) {
         Serial.println(i);
-        
-                 
-        if (!trigger->validateParam(i,strParams[i])){
+
+
+        if (!trigger->validateParam(i, strParams[i])) {
           Serial.print("INVALID PARAM ");
           Serial.println(i);
           return;
-        }        
+        }
       }
 
-      
-      
-      
-      
+
+
+
+
     }
   public:
     Protocol(Endpoint* e, Reader* r) {
       this->endpoint = e;
       this->reader = r;
     }
-  
-    void read(){
+
+    void read() {
       char* cmd = reader->read();
       if (cmd == NULL) return;
       Serial.println(cmd);
-      char* command = strtok(cmd," ");
-      
-      if (strcmp(command,"CALL")==0){
+      char* command = strtok(cmd, " ");
+
+      if (strcmp(command, "CALL") == 0) {
         Serial.println("CALL CMD");
         callTrigger();
       } else {
         Serial.println("PROTO ERROR");
       }
-      
+
     }
 
-    void write(){
-      
+    void write() {
+
     }
 };
 

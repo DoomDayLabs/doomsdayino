@@ -133,7 +133,7 @@ class AbstractTrigger {
 
 
     virtual int getParamsCount() = 0;
-    virtual bool validateParam(int i,char* p) = 0;
+    virtual bool validateParam(int i, char* p) = 0;
 
 };
 
@@ -162,7 +162,7 @@ class Trigger: public AbstractTrigger {
       strcpy(def, buff);
     }
 
-    int getParamsCount(){
+    int getParamsCount() {
       return paramsCount;
     }
 
@@ -170,9 +170,9 @@ class Trigger: public AbstractTrigger {
       return def;
     }
 
-    bool validateParam(int i,char* p){      
+    bool validateParam(int i, char* p) {
       Param* param = params[i];
-      return param->validate(p);      
+      return param->validate(p);
     }
 
 };
