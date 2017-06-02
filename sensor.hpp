@@ -50,7 +50,7 @@ class IntSensor: public Sensor {
       this->val = min;
       
       char buf[1024];
-      sprintf(buf, "%s INT %d %d", name, min, max);
+      sprintf(buf, "SENSOR %s INT %d %d", name, min, max);
       this->setDef(buf);
       
     }
@@ -77,7 +77,7 @@ class FloatSensor: public Sensor {
       this->min = min;
       this->max = max;
       char buf[1024];
-      sprintf(buf, "%s FLOAT %f %f", name, min, max);
+      sprintf(buf, "SENSOR %s FLOAT %f %f", name, min, max);
       this->setDef(buf);
     }
 
@@ -101,7 +101,7 @@ class ValSensor: public Sensor {
   public:
     ValSensor(const char* name, ...): Sensor(name) {
       char buf[1024];
-      sprintf(buf, "%s VAL ", name);
+      sprintf(buf, "SENSOR %s VAL ", name);
 
 
       va_list ap;
@@ -125,8 +125,9 @@ class ValSensor: public Sensor {
       update();
     }
 
-    char* getValue() {
-      return NULL;
+    void putValue(char* buf){
+      char* option = options[val];
+      strcpy(buf,option);
     }
 };
 
@@ -140,7 +141,7 @@ class FlagSensor: public Sensor {
   public:
     FlagSensor(const char* name, ...): Sensor(name) {
       char buf[1024];
-      sprintf(buf, "%s FLAG ", name);
+      sprintf(buf, "SENSOR %s FLAG ", name);
 
 
       va_list ap;

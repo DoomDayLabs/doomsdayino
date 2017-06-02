@@ -1,4 +1,11 @@
 #include "endpoint.hpp"
+#ifdef debug
+#define PRINT(a) Serial.print(a)
+#define PRINTLN(a) Serial.println(a)
+#else
+#define PRINT(a)
+#define PRINTLN(a)
+#endif
 
 class Reader {
   private:
@@ -6,6 +13,7 @@ class Reader {
     char buffer[1024];
     int pos = 0;
   public:
+  
     Reader(Stream* s) {
       this->stream = s;
     }
@@ -24,48 +32,52 @@ class Reader {
       }
       return NULL;
     }
+    Stream* getStream(){
+      return stream;
+    }
 };
 
 class Protocol {
   private:
     Endpoint* endpoint;
     Reader* reader;
+    Stream* s;
 
     void callTrigger() {
       char* triggerName = strtok(NULL, " ");
-      Serial.print("Trigger=");
-      Serial.println(triggerName);
+      PRINT("Trigger=");
+      PRINTLN(triggerName);
 
       AbstractTrigger* trigger = endpoint->findTrigger(triggerName);
       if (trigger == NULL) return;
-      Serial.println("Trigger found");
+      PRINTLN("Trigger found");
 
       int paramCount = trigger->getParamsCount();
       char* strParams[paramCount];
 
-      Serial.println("PARAMS:");
-      Serial.println(paramCount);
+      PRINTLN("PARAMS:");
+      PRINTLN(paramCount);
       for (int i = 0; i < paramCount; i++) {
         char* param = strtok(NULL, " ");
         strParams[i] = param;
-        Serial.print(i);
-        Serial.print("=");
-        Serial.println(param);
+        PRINT(i);
+        PRINT("=");
+        PRINTLN(param);
       }
 
-      Serial.println("VALIDATE");
+      PRINTLN("VALIDATE");
       for (int i = 0; i < paramCount; i++) {
-        Serial.println(i);
+        PRINTLN(i);
 
 
         if (!trigger->validateParam(i, strParams[i])) {
-          Serial.print("INVALID PARAM ");
-          Serial.println(i);
+          PRINT("INVALID PARAM ");
+          PRINTLN(i);
           return;
         }
       }
 
-      Serial.println("VALID PARAMS");
+      PRINTLN("VALID PARAMS");
       TArg args = TArg(0, strParams, trigger->getParams());
       trigger->call(args);
 
@@ -81,9 +93,8 @@ class Protocol {
 
       while (ss->s != NULL) {
         Sensor* sensor = ss->s;
-        
-        Serial.print("SENSOR ");
-        Serial.println(sensor->getDef());
+        //reader->str()->println(                
+        s->println(sensor->getDef());
         
         if (ss->next == NULL)
           break;
@@ -99,7 +110,7 @@ class Protocol {
       while (ss->t != NULL) {
         AbstractTrigger* t = ss->t;
                 
-        Serial.println(t->getDef());
+        s->println(t->getDef());
         
         if (ss->next == NULL)
           break;
@@ -111,27 +122,27 @@ class Protocol {
     Protocol(Endpoint* e, Reader* r) {
       this->endpoint = e;
       this->reader = r;
+      this->s = r->getStream();
     }
     
     void read() {
       char* cmd = reader->read();
-      if (cmd == NULL) return;
-      Serial.println(cmd);
+      if (cmd == NULL) return;      
       char* command = strtok(cmd, " ");
 
       if (strcmp(command, "CONNECT") == 0) {
         if (endpoint->state == 1) {
           char* pin = strtok(NULL, " ");
           if (strcmp(endpoint->getPin(), pin) == 0) {
-            Serial.println("ACCEPT");
+            s->println("ACCEPT");
             endpoint->state = 2;
             writeSensorDefs();
             writeTriggerDefs();
           } else {
-            Serial.println("REJECT");
+            s->println("REJECT");
           }
         } else {
-          Serial.println("STATE ERROR");
+         PRINT("STATE ERROR");
         }
 
         //CONNECT
@@ -139,12 +150,12 @@ class Protocol {
         if (endpoint->state == 2) {
           callTrigger();
         } else {
-          Serial.println("STATE ERROR");
+          PRINT("STATE ERROR");
         }
 
 
       } else {
-        Serial.println("PROTO ERROR");
+        s->println("PROTO ERROR");
       }
     }
 
@@ -157,13 +168,13 @@ class Protocol {
         Sensor* sensor = ss->s;
 
         if (sensor->isChanged()) {
-          char buffer[256];
+          char buffer[512];
           sensor->putValue(buffer);
           sensor->fresh();
-          Serial.print("SET ");
-          Serial.print(sensor->getName());
-          Serial.print(" ");
-          Serial.println(buffer);
+          s->print("SET ");
+          s->print(sensor->getName());
+          s->print(" ");
+          s->println(buffer);
         }
 
         if (ss->next == NULL)
@@ -171,7 +182,6 @@ class Protocol {
         ss = ss->next;
 
       }
-
 
     }
 

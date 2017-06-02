@@ -117,6 +117,7 @@ class FlagParam: public Param {
   public:
     FlagParam(const char* f[count]) {
       char buff[1024];
+      memset(buff,0,1024);
       strcpy(buff, "FLAG ");
 
       for (int i = 0; i < count; i++) {
@@ -130,7 +131,6 @@ class FlagParam: public Param {
       setDef(buff);
     }
     bool validate(char* p) {
-      
       return false;
     }
 };
