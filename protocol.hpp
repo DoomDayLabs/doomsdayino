@@ -39,7 +39,7 @@ class Protocol {
       AbstractTrigger* trigger = endpoint->findTrigger(triggerName);
       if (trigger == NULL) return;
       Serial.println("Trigger found");
-      //trigger->call();
+      
       int paramCount = trigger->getParamsCount();
       char* strParams[paramCount];
 
@@ -65,6 +65,10 @@ class Protocol {
         }
       }
 
+      Serial.println("VALID PARAMS");
+      TArg args = TArg(0,strParams,trigger->getParams());
+      trigger->call(args);
+      
 
 
 
@@ -82,17 +86,34 @@ class Protocol {
       Serial.println(cmd);
       char* command = strtok(cmd, " ");
 
+      if (strcmp(command, "CONNECT")==0){
+        //CONNECT
+      } else
       if (strcmp(command, "CALL") == 0) {
         Serial.println("CALL CMD");
         callTrigger();
       } else {
         Serial.println("PROTO ERROR");
       }
-
     }
 
+/*
+    void writeSensors(){
+      str_sensor* s = endpoint->getSensor();
+      while(s->s!=NULL){
+        Sensor* sensor = s->s;
+        if (sensor->isChanged()){
+          char buffer[256];
+          sensor->putValue(buffer);
+          sensor->fresh();
+          Serial.println(buffer);
+        }
+        s = s->next;
+      }
+    }
+    */
     void write() {
-
+     // writeSensors(); 
     }
 };
 

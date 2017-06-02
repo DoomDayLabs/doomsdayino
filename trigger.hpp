@@ -1,7 +1,4 @@
-
-
-typedef void (*TriggerCall)();
-
+#include <stdarg.h>
 class Param {
   private:
     char* d;
@@ -16,9 +13,7 @@ class Param {
     const char* def() {
       return this->d;
     }
-    bool validate(char* p) {
-      return true;
-    }
+    virtual bool validate(char* p) = 0;
 };
 
 
@@ -32,6 +27,12 @@ class IntParam: public Param {
       char buf[512];
       sprintf(buf, "INT %d %d ", min, max);
       setDef(buf);
+    }
+
+    bool validate(char* p) {
+      if (strspn(p, "0123456789") != strlen(p)) return false;
+      int v = atoi(p);
+      return v >= min && v <= max;
     }
 
 };
@@ -48,14 +49,35 @@ class FloatParam: public Param {
       setDef(buf);
     }
 
+    bool validate(char* p) {
+      if (strspn(p, "0123456789.,") == strlen(p)) return false;
+      float v = atof(p);
+      return v >= min && v <= max;
+    }
 };
 
 class StrParam: public Param {
   private:
-    float min;
+    //float min;
   public:
     StrParam(): Param() {
       setDef((char*)"STR ");
+    }
+    bool validate(char* p) {
+      return true;
+    }
+};
+
+class BoolParam: public Param {
+  private:
+
+  public:
+    BoolParam(): Param() {
+      setDef((char*)"BOOL ");
+    }
+
+    bool validate(char* p) {
+      return strcmp(p, "FALSE") == 0 || strcmp(p, "TRUE") == 0;
     }
 };
 
@@ -80,6 +102,13 @@ class ValParam: public Param {
       strcat(buf, " ");
       setDef(buf);
     }
+    bool validate(char* p) {
+      for (int i = 0; i < count; i++) {
+        if (strcmp(opts[i], p) == 0)
+          return true;
+      }
+      return false;
+    }
 };
 
 template<int count>
@@ -101,7 +130,47 @@ class FlagParam: public Param {
       strcat(buff, " ");
       setDef(buff);
     }
+    bool validate(char* p) {
+      
+      return false;
+    }
 };
+
+class TArg {
+  private:
+    char** strParams;
+    Param** params;
+    int paramCount;
+  public:
+    TArg(int paramCount, char** strParams, Param** params) {
+      this->paramCount = paramCount;
+      this->strParams = strParams;
+      this->params = params;
+    }
+    int asInt(int i) {
+      char* p = strParams[i];
+      return atoi(p);
+    }
+    float asFloat(int i) {
+      char* p = strParams[i];
+      return atof(p);
+    }
+    const char* asStr(int i) {
+      return strParams[i];
+    }
+
+    int asVal(int i) {
+      
+      return 0;
+    }
+
+    int asFlag(int i) {
+      return 0;
+    }
+};
+
+typedef void (*TriggerCall)(TArg);
+
 
 
 class AbstractTrigger {
@@ -125,15 +194,16 @@ class AbstractTrigger {
       this->callback = c;
     }
 
-    void call() {
+    void call(TArg arg) {
       if (this->callback != NULL) {
-        this->callback();
+        this->callback(arg);
       }
     }
 
 
     virtual int getParamsCount() = 0;
     virtual bool validateParam(int i, char* p) = 0;
+    virtual Param** getParams() = 0;
 
 };
 
@@ -164,6 +234,10 @@ class Trigger: public AbstractTrigger {
 
     int getParamsCount() {
       return paramsCount;
+    }
+
+    Param** getParams() {
+      return params;
     }
 
     const char* getDef() {

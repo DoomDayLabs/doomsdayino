@@ -1,3 +1,4 @@
+#include <stdarg.h>
 class Sensor {
   private:
     const char* name;
@@ -7,7 +8,10 @@ class Sensor {
     void update() {
       changed = true;
     }
-    virtual char* getValue() = 0;
+
+    
+    
+    //
 
   public:
     Sensor(const char* name) {
@@ -20,6 +24,19 @@ class Sensor {
     char* getDef() {
       return this->def;
     }
+
+    void fresh(){
+      changed = false;
+    }
+
+    bool isChanged(){
+      return changed;
+    }
+    
+    virtual char* getValue() = 0;
+    virtual void putValue(char* buf){
+      
+    }
 };
 
 class IntSensor: public Sensor {
@@ -27,22 +44,29 @@ class IntSensor: public Sensor {
     int min = 0;
     int max = 0;
     int val = 0;
-  protected:
-    char* getValue() {
-      return NULL;
-    }
+     
   public:
     IntSensor(const char* name, int min, int max): Sensor(name) {
       this->min = min;
       this->max = max;
       this->val = min;
+      
       char buf[strlen(name) * 2];
       sprintf(buf, "%s %d %d", name, min, max);
       this->setDef(buf);
+      
     }
     void set(int val) {
       this->val = val;
       update();
+    }
+
+    char* getValue(){
+      return NULL;
+    }
+
+    void putValue(char* buffer){
+      
     }
 };
 
@@ -52,9 +76,7 @@ class FloatSensor: public Sensor {
     float max;
     float val;
   protected:
-    char* getValue() {
-      return NULL;
-    }
+    
   public:
     FloatSensor(const char* name, float min, float max): Sensor(name) {
       this->min = min;
@@ -68,6 +90,10 @@ class FloatSensor: public Sensor {
       this->val = val;
       update();
     }
+
+    char* getValue() {
+      return NULL;
+    }
 };
 
 template<int argCount>
@@ -76,9 +102,7 @@ class ValSensor: public Sensor {
     const char* options[argCount];
     int val = 0;
   protected:
-    char* getValue() {
-      return NULL;
-    }
+    
   public:
     ValSensor(const char* name, ...): Sensor(name) {
       char buf[1024];
@@ -105,6 +129,10 @@ class ValSensor: public Sensor {
       this->val = val;
       update();
     }
+
+    char* getValue() {
+      return NULL;
+    }
 };
 
 template<int argCount>
@@ -113,9 +141,7 @@ class FlagSensor: public Sensor {
     const char* options[argCount];
     int val = 0;
   protected:
-    char* getValue() {
-      return NULL;
-    }
+    
   public:
     FlagSensor(const char* name, ...): Sensor(name) {
       char buf[1024];
@@ -138,9 +164,15 @@ class FlagSensor: public Sensor {
     }
     void set(int i) {
       this->val = val | (1 << i);
+      update();
     }
     void unset(int i) {
       this->val = val & ~(1 << i);
+      update();
+    }
+
+    char* getValue() {
+      return NULL;
     }
 };
 
