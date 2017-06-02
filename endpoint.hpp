@@ -28,7 +28,7 @@ class Endpoint {
     char* pincode = "12345";
     char* endpointClass = "";
     char* endpointSerial = "";
-    
+
     str_trigger* trigger;
     str_sensor* sensor;
   public:
@@ -80,7 +80,7 @@ class Endpoint {
       this->pincode = pin;
     }
 
-    const char* getPin(){
+    const char* getPin() {
       return this->pincode;
     }
 

@@ -13,7 +13,7 @@ class Sensor {
       this->name = name;
     };
 
-    const char* getName(){
+    const char* getName() {
       return name;
     }
     void setDef(char* def) {
@@ -24,15 +24,15 @@ class Sensor {
       return this->def;
     }
 
-    void fresh(){
+    void fresh() {
       changed = false;
     }
 
-    bool isChanged(){
+    bool isChanged() {
       return changed;
     }
-    
-    virtual void putValue(char* buf){
+
+    virtual void putValue(char* buf) {
       buf[0] = 0;
     }
 };
@@ -42,28 +42,28 @@ class IntSensor: public Sensor {
     int min = 0;
     int max = 0;
     int val = 0;
-     
+
   public:
     IntSensor(const char* name, int min, int max): Sensor(name) {
       this->min = min;
       this->max = max;
       this->val = min;
-      
+
       char buf[1024];
       sprintf(buf, "SENSOR %s INT %d %d", name, min, max);
       this->setDef(buf);
-      
+
     }
-    void set(int val) {      
-      if (val<min) val=min;
-      if (val>max) val=max;
+    void set(int val) {
+      if (val < min) val = min;
+      if (val > max) val = max;
       this->val = val;
       update();
     }
 
 
-    void putValue(char* buffer){
-      sprintf(buffer,"%d",val);
+    void putValue(char* buffer) {
+      sprintf(buffer, "%d", val);
     }
 };
 
@@ -73,7 +73,7 @@ class FloatSensor: public Sensor {
     float max;
     float val;
   protected:
-    
+
   public:
     FloatSensor(const char* name, float min, float max): Sensor(name) {
       this->min = min;
@@ -84,14 +84,14 @@ class FloatSensor: public Sensor {
     }
 
     void set(float val) {
-      if (val<min) val = min;
-      if (val>max) val = max;        
+      if (val < min) val = min;
+      if (val > max) val = max;
       this->val = val;
       update();
     }
 
-    void putValue(char* buff){
-      sprintf(buff,"%f",val);
+    void putValue(char* buff) {
+      sprintf(buff, "%f", val);
     }
 };
 
@@ -99,22 +99,45 @@ class StrSensor: public Sensor {
   private:
     char* val = NULL;
   public:
-    StrSensor(const char* name):Sensor(name){
+    StrSensor(const char* name): Sensor(name) {
       char buf[1024];
-      sprintf(buf, "SENSOR %s STR",name);
+      sprintf(buf, "SENSOR %s STR", name);
       this->setDef(buf);
-      this->val = malloc(8);
+      this->val = (char*)malloc(8);
     }
 
-    void set(const char* v){      
-      free(val);      
+    void set(const char* v) {
+      free(val);
       val = (char*)(malloc(strlen(v)));
-      strcpy(val,v);
+      strcpy(val, v);
       update();
     }
 
-    void putValue(char* buf){
-      strcpy(buf,val);
+    void putValue(char* buf) {
+      strcpy(buf, val);
+    }
+};
+
+class BoolSensor: public Sensor {
+  private:
+    bool val = false;
+  public:
+    BoolSensor(const char* name): Sensor(name) {
+      char buf[1024];
+      sprintf(buf, "SENSOR %s BOOL", name);
+      this->setDef(buf);
+    }
+
+    void set(const bool v) {
+      val = v;
+      update();
+    }
+
+    void putValue(char* buf) {
+      if (this->val == true)
+        strcpy(buf, "TRUE");
+      else
+        strcpy(buf, "FALSE");
     }
 };
 template<int argCount>
@@ -123,7 +146,7 @@ class ValSensor: public Sensor {
     const char* options[argCount];
     int val = 0;
   protected:
-    
+
   public:
     ValSensor(const char* name, ...): Sensor(name) {
       char buf[1024];
@@ -151,9 +174,9 @@ class ValSensor: public Sensor {
       update();
     }
 
-    void putValue(char* buf){
+    void putValue(char* buf) {
       char* option = options[val];
-      strcpy(buf,option);
+      strcpy(buf, option);
     }
 };
 
@@ -163,7 +186,7 @@ class FlagSensor: public Sensor {
     const char* options[argCount];
     int val = 0;
   protected:
-    
+
   public:
     FlagSensor(const char* name, ...): Sensor(name) {
       char buf[1024];

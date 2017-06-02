@@ -88,7 +88,7 @@ class ValParam: public Param {
     const char* opts[count];
   public:
     ValParam(const char* s[count]) {
-      char buf[1024];     
+      char buf[1024];
       strcpy(buf, "VAL ");
 
       for (int i = 0; i < count; i++) {
@@ -117,7 +117,7 @@ class FlagParam: public Param {
   public:
     FlagParam(const char* f[count]) {
       char buff[1024];
-      memset(buff,0,1024);
+      memset(buff, 0, 1024);
       strcpy(buff, "FLAG ");
 
       for (int i = 0; i < count; i++) {
@@ -160,7 +160,7 @@ class TArg {
 
     int asVal(int i) {
       Param* param = params[i];
-                  
+
       return 0;
     }
 

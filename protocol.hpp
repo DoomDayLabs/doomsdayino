@@ -13,7 +13,7 @@ class Reader {
     char buffer[1024];
     int pos = 0;
   public:
-  
+
     Reader(Stream* s) {
       this->stream = s;
     }
@@ -32,7 +32,7 @@ class Reader {
       }
       return NULL;
     }
-    Stream* getStream(){
+    Stream* getStream() {
       return stream;
     }
 };
@@ -88,35 +88,35 @@ class Protocol {
     }
 
     void writeSensorDefs() {
-      
+
       str_sensor* ss = endpoint->getSensor();
 
       while (ss->s != NULL) {
         Sensor* sensor = ss->s;
-        //reader->str()->println(                
+        //reader->str()->println(
         s->println(sensor->getDef());
-        
+
         if (ss->next == NULL)
           break;
         ss = ss->next;
       }
-      
+
     }
 
     void writeTriggerDefs() {
-      
+
       str_trigger* ss = endpoint->getTrigger();
 
       while (ss->t != NULL) {
         AbstractTrigger* t = ss->t;
-                
+
         s->println(t->getDef());
-        
+
         if (ss->next == NULL)
           break;
         ss = ss->next;
       }
-      
+
     }
   public:
     Protocol(Endpoint* e, Reader* r) {
@@ -124,10 +124,10 @@ class Protocol {
       this->reader = r;
       this->s = r->getStream();
     }
-    
+
     void read() {
       char* cmd = reader->read();
-      if (cmd == NULL) return;      
+      if (cmd == NULL) return;
       char* command = strtok(cmd, " ");
 
       if (strcmp(command, "CONNECT") == 0) {
@@ -142,7 +142,7 @@ class Protocol {
             s->println("REJECT");
           }
         } else {
-         PRINT("STATE ERROR");
+          PRINT("STATE ERROR");
         }
 
         //CONNECT
