@@ -1,33 +1,38 @@
 #include <stdarg.h>
-#include "endpoint.hpp"
+#include "device.hpp"
 
 
 
 
-//Trigger<4> t("TRIG1", new IntParam(10, 20), new FloatParam(3.14, 5.17), new StrParam(), new ValParam<3>(OPTS{"OPT1", "OPT2", "OPT3"}));
-Trigger<0> t1("TRIG1");
-Endpoint e = Endpoint(new Reader(&Serial));
 
 
+
+Endpoint e = Endpoint();
+Protocol proto = Protocol(&e, new Reader(&Serial));
+
+void callback1(){
+  Serial.println("!!CALLBACK1!!");
+}
 
 void setup() {
   pinMode(PC13, OUTPUT);
   Serial.begin(115200);
+  setup(&e);
+  e.setPin("111");
 }
 
 
 
 void loop() {
-  e.setPin("111");
-  e.read();
   
-  e.write();
+  
+  proto.read();
+
+  loop(&e);
+  proto.write();
 
   digitalWrite(PC13, LOW);
   delay(100);
   digitalWrite(PC13, HIGH);
   delay(100);
-
-
-
 }

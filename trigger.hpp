@@ -1,4 +1,7 @@
 
+
+typedef void (*TriggerCall)();
+
 class Param {
   private:
     char* d;
@@ -13,7 +16,7 @@ class Param {
     const char* def() {
       return this->d;
     }
-    bool validate(){
+    bool validate(char* p) {
       return true;
     }
 };
@@ -102,8 +105,11 @@ class FlagParam: public Param {
 
 
 class AbstractTrigger {
+  private:
+    TriggerCall callback = NULL;
   protected:
     const char* name;
+
     void setName(const char* n) {
       this->name = n;
     }
@@ -115,7 +121,20 @@ class AbstractTrigger {
       return name;
     }
 
-    virtual bool validateParam(int num) = 0;
+    void on(TriggerCall c) {
+      this->callback = c;
+    }
+
+    void call() {
+      if (this->callback != NULL) {
+        this->callback();
+      }
+    }
+
+
+    virtual int getParamsCount() = 0;
+    virtual bool validateParam(int i,char* p) = 0;
+
 };
 
 template<int paramsCount>
@@ -143,14 +162,17 @@ class Trigger: public AbstractTrigger {
       strcpy(def, buff);
     }
 
-
-    bool validateParam(int n) {
-      Param* p = params[n];
-      
-      return p->validate();
+    int getParamsCount(){
+      return paramsCount;
     }
+
     const char* getDef() {
       return def;
+    }
+
+    bool validateParam(int i,char* p){      
+      Param* param = params[i];
+      return param->validate(p);      
     }
 
 };
