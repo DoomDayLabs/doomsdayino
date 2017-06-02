@@ -1,12 +1,8 @@
-
-
 //#define debug
-#include "protocol.hpp"
+#include "DoomsDayIno.h"
 
-
-Endpoint e = Endpoint();
-
-Protocol proto = Protocol(&e, new Reader(&Serial));
+IntSensor tempe("TEMP",10,100);
+StrSensor str("STR");
 
 Trigger<0> t1("T1");
 Trigger<1> t2("T2", new IntParam(10, 100));
@@ -21,30 +17,30 @@ void callback2(TArg args){
   Serial.println(args.asStr(0));
 }
 
-IntSensor tempe("TEMP",10,100);
-StrSensor str("STR");
-void setup() {
+
+void setup(Endpoint* e, Protocol* proto) {
+  proto->setReader(new Reader(&Serial));
   pinMode(PC13, OUTPUT);
   Serial.begin(115200);
-  e.setPin("111");
+  
+  e->setPin("111");
   t2.on(callback1);
   t3.on(callback2);
 
-  e.addSensor(&tempe);
-  e.addSensor(&str);
+  e->addSensor(&tempe);
+  e->addSensor(&str);
   
-  e.addTrigger(&t1);
-  e.addTrigger(&t2);
+  e->addTrigger(&t1);
+  e->addTrigger(&t2);
   
-  e.addTrigger(&t4);
-  e.addTrigger(&t3);
+  e->addTrigger(&t4);
+  e->addTrigger(&t3);
 }
+
 int counter = 10;
 int lastTime = millis();
-void loop() {
+void loop(Endpoint* e,Protocol* proto) {  
   
-  proto.read();
-
   int t = millis();
   if (t-lastTime>=2000){
     counter++;
@@ -55,8 +51,6 @@ void loop() {
     str.set(buf);
   }
   
-  
-  proto.write();
   
   digitalWrite(PC13, LOW);
   

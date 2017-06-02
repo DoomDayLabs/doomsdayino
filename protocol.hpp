@@ -40,7 +40,7 @@ class Reader {
 class Protocol {
   private:
     Endpoint* endpoint;
-    Reader* reader;
+    Reader* reader = NULL;
     Stream* s;
 
     void callTrigger() {
@@ -125,7 +125,14 @@ class Protocol {
       this->s = r->getStream();
     }
 
+    void setReader(Reader* r) {
+      this->reader = r;
+      this->s = r->getStream();
+    }
+
     void read() {
+      if (reader == NULL)
+        return;
       char* cmd = reader->read();
       if (cmd == NULL) return;
       char* command = strtok(cmd, " ");
@@ -186,6 +193,8 @@ class Protocol {
     }
 
     void write() {
+      if (reader == NULL)
+        return;
       if (endpoint->state == 2) {
         writeSensors();
       }

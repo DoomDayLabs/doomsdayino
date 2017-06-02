@@ -2,11 +2,6 @@
 #include "trigger.hpp"
 
 
-template<class T>
-struct List {
-
-};
-
 typedef struct str_trigger {
   str_trigger* next;
   AbstractTrigger* t;
@@ -76,10 +71,10 @@ class Endpoint {
       this->sensor->s = NULL;
       this->sensor->next = NULL;
     }
-    void setPin(char* pin) {
+    void setPin(const char* pin) {
       this->pincode = pin;
     }
-
+    
     const char* getPin() {
       return this->pincode;
     }
