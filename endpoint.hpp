@@ -2,6 +2,10 @@
 #include "trigger.hpp"
 
 
+template<class T>
+struct List {
+
+};
 
 typedef struct str_trigger {
   str_trigger* next;
@@ -14,17 +18,21 @@ typedef struct str_sensor {
 } str_sensor;
 
 /*
- * STATUS:
- */
+   STATUS:
+   OFFLINE = 0
+   ONLINE = 1
+   ACTIVE = 2
+*/
 class Endpoint {
   private:
     char* pincode = "12345";
     char* endpointClass = "";
     char* endpointSerial = "";
-    char state = 0;
+    
     str_trigger* trigger;
     str_sensor* sensor;
   public:
+    char state = 1;
     void addTrigger(AbstractTrigger* t) {
       str_trigger* st = trigger;
       while (st->t != NULL) {
@@ -53,11 +61,11 @@ class Endpoint {
       st->s = s;
     }
 
-    str_sensor* getSensor(){
+    str_sensor* getSensor() {
       return sensor;
     }
 
-    str_trigger* getTrigger(){
+    str_trigger* getTrigger() {
       return trigger;
     }
     Endpoint() {
@@ -70,6 +78,10 @@ class Endpoint {
     }
     void setPin(char* pin) {
       this->pincode = pin;
+    }
+
+    const char* getPin(){
+      return this->pincode;
     }
 
     AbstractTrigger* findTrigger(const char* name) {

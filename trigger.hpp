@@ -88,8 +88,7 @@ class ValParam: public Param {
     const char* opts[count];
   public:
     ValParam(const char* s[count]) {
-      char buf[1024];
-      //memset(buf,0,1024);
+      char buf[1024];     
       strcpy(buf, "VAL ");
 
       for (int i = 0; i < count; i++) {
@@ -204,6 +203,7 @@ class AbstractTrigger {
     virtual int getParamsCount() = 0;
     virtual bool validateParam(int i, char* p) = 0;
     virtual Param** getParams() = 0;
+    virtual const char* getDef() = 0;
 
 };
 

@@ -39,7 +39,7 @@ class Protocol {
       AbstractTrigger* trigger = endpoint->findTrigger(triggerName);
       if (trigger == NULL) return;
       Serial.println("Trigger found");
-      
+
       int paramCount = trigger->getParamsCount();
       char* strParams[paramCount];
 
@@ -66,54 +66,119 @@ class Protocol {
       }
 
       Serial.println("VALID PARAMS");
-      TArg args = TArg(0,strParams,trigger->getParams());
+      TArg args = TArg(0, strParams, trigger->getParams());
       trigger->call(args);
+
+
+
+
+
+    }
+
+    void writeSensorDefs() {
       
+      str_sensor* ss = endpoint->getSensor();
 
+      while (ss->s != NULL) {
+        Sensor* sensor = ss->s;
+        
+        Serial.print("SENSOR ");
+        Serial.println(sensor->getDef());
+        
+        if (ss->next == NULL)
+          break;
+        ss = ss->next;
+      }
+      
+    }
 
+    void writeTriggerDefs() {
+      
+      str_trigger* ss = endpoint->getTrigger();
 
-
+      while (ss->t != NULL) {
+        AbstractTrigger* t = ss->t;
+                
+        Serial.println(t->getDef());
+        
+        if (ss->next == NULL)
+          break;
+        ss = ss->next;
+      }
+      
     }
   public:
     Protocol(Endpoint* e, Reader* r) {
       this->endpoint = e;
       this->reader = r;
     }
-
+    
     void read() {
       char* cmd = reader->read();
       if (cmd == NULL) return;
       Serial.println(cmd);
       char* command = strtok(cmd, " ");
 
-      if (strcmp(command, "CONNECT")==0){
+      if (strcmp(command, "CONNECT") == 0) {
+        if (endpoint->state == 1) {
+          char* pin = strtok(NULL, " ");
+          if (strcmp(endpoint->getPin(), pin) == 0) {
+            Serial.println("ACCEPT");
+            endpoint->state = 2;
+            writeSensorDefs();
+            writeTriggerDefs();
+          } else {
+            Serial.println("REJECT");
+          }
+        } else {
+          Serial.println("STATE ERROR");
+        }
+
         //CONNECT
-      } else
-      if (strcmp(command, "CALL") == 0) {
-        Serial.println("CALL CMD");
-        callTrigger();
+      } else if (strcmp(command, "CALL") == 0) {
+        if (endpoint->state == 2) {
+          callTrigger();
+        } else {
+          Serial.println("STATE ERROR");
+        }
+
+
       } else {
         Serial.println("PROTO ERROR");
       }
     }
 
-/*
-    void writeSensors(){
-      str_sensor* s = endpoint->getSensor();
-      while(s->s!=NULL){
-        Sensor* sensor = s->s;
-        if (sensor->isChanged()){
+
+    void writeSensors() {
+
+      str_sensor* ss = endpoint->getSensor();
+
+      while (ss->s != NULL) {
+        Sensor* sensor = ss->s;
+
+        if (sensor->isChanged()) {
           char buffer[256];
           sensor->putValue(buffer);
           sensor->fresh();
+          Serial.print("SET ");
+          Serial.print(sensor->getName());
+          Serial.print(" ");
           Serial.println(buffer);
         }
-        s = s->next;
+
+        if (ss->next == NULL)
+          break;
+        ss = ss->next;
+
       }
+
+
     }
-    */
+
     void write() {
-     // writeSensors(); 
+      if (endpoint->state == 2) {
+        writeSensors();
+      }
     }
 };
 
