@@ -159,7 +159,8 @@ class TArg {
     }
 
     int asVal(int i) {
-      
+      Param* param = params[i];
+                  
       return 0;
     }
 

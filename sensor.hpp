@@ -54,7 +54,9 @@ class IntSensor: public Sensor {
       this->setDef(buf);
       
     }
-    void set(int val) {
+    void set(int val) {      
+      if (val<min) val=min;
+      if (val>max) val=max;
       this->val = val;
       update();
     }
@@ -82,6 +84,8 @@ class FloatSensor: public Sensor {
     }
 
     void set(float val) {
+      if (val<min) val = min;
+      if (val>max) val = max;        
       this->val = val;
       update();
     }
@@ -91,6 +95,28 @@ class FloatSensor: public Sensor {
     }
 };
 
+class StrSensor: public Sensor {
+  private:
+    char* val = NULL;
+  public:
+    StrSensor(const char* name):Sensor(name){
+      char buf[1024];
+      sprintf(buf, "SENSOR %s STR",name);
+      this->setDef(buf);
+      this->val = malloc(8);
+    }
+
+    void set(const char* v){      
+      free(val);      
+      val = (char*)(malloc(strlen(v)));
+      strcpy(val,v);
+      update();
+    }
+
+    void putValue(char* buf){
+      strcpy(buf,val);
+    }
+};
 template<int argCount>
 class ValSensor: public Sensor {
   private:
