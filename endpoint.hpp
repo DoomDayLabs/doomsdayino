@@ -20,9 +20,9 @@ typedef struct str_sensor {
 */
 class Endpoint {
   private:
-    char* pincode = "12345";
-    char* endpointClass = "";
-    char* endpointSerial = "";
+    const char* pincode = (char*)("12345");
+    const char* endpointClass = (char*)("");
+    const char* endpointSerial = (char*)("");
 
     str_trigger* trigger;
     str_sensor* sensor;
@@ -70,8 +70,9 @@ class Endpoint {
       this->sensor = new (str_sensor);
       this->sensor->s = NULL;
       this->sensor->next = NULL;
+      
     }
-    void setPin(const char* pin) {
+    void setPin(const char* pin) {      
       this->pincode = pin;
     }
     

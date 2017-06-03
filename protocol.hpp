@@ -122,7 +122,8 @@ class Protocol {
     Protocol(Endpoint* e, Reader* r) {
       this->endpoint = e;
       this->reader = r;
-      this->s = r->getStream();
+      if (r != NULL)
+        this->s = r->getStream();
     }
 
     void setReader(Reader* r) {
