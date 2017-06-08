@@ -9,16 +9,22 @@
 
 class Reader {
   private:
-    Stream* stream;
+    Stream* stream = NULL;
     char buffer[1024];
     int pos = 0;
   public:
 
-    Reader(Stream* s) {
+    Reader() {
+
+    }
+    void setStream(Stream* s) {
       this->stream = s;
+      pos = 0;
     }
 
     char* read() {
+      if (stream == NULL)
+        return NULL;
       while (stream->available() > 0) {
         char c = stream->read();
         if (c == '\n') {
@@ -26,22 +32,19 @@ class Reader {
           pos = 0;
           return buffer;
         }
-
         buffer[pos] = c;
         pos++;
       }
       return NULL;
     }
-    Stream* getStream() {
-      return stream;
-    }
+
 };
 
 class Protocol {
   private:
     Endpoint* endpoint;
-    Reader* reader = NULL;
-    Stream* s;
+    Reader reader;
+    Stream* stream;
 
     void callTrigger() {
       char* triggerName = strtok(NULL, " ");
@@ -94,7 +97,7 @@ class Protocol {
       while (ss->s != NULL) {
         Sensor* sensor = ss->s;
         //reader->str()->println(
-        s->println(sensor->getDef());
+        stream->println(sensor->getDef());
 
         if (ss->next == NULL)
           break;
@@ -110,7 +113,7 @@ class Protocol {
       while (ss->t != NULL) {
         AbstractTrigger* t = ss->t;
 
-        s->println(t->getDef());
+        stream->println(t->getDef());
 
         if (ss->next == NULL)
           break;
@@ -119,22 +122,20 @@ class Protocol {
 
     }
   public:
-    Protocol(Endpoint* e, Reader* r) {
+    Protocol(Endpoint* e, Stream* s) {
       this->endpoint = e;
-      this->reader = r;
-      if (r != NULL)
-        this->s = r->getStream();
+      setStream(s);
     }
 
-    void setReader(Reader* r) {
-      this->reader = r;
-      this->s = r->getStream();
+    void setStream(Stream* s) {
+      this->reader.setStream(s);
+      this->stream = s;
     }
 
     void read() {
-      if (reader == NULL)
+      if (stream == NULL)
         return;
-      char* cmd = reader->read();
+      char* cmd = reader.read();
       if (cmd == NULL) return;
       char* command = strtok(cmd, " ");
 
@@ -142,15 +143,15 @@ class Protocol {
         if (endpoint->state == 1) {
           char* pin = strtok(NULL, " ");
           if (strcmp(endpoint->getPin(), pin) == 0) {
-            s->println("ACCEPT");
+            stream->println("ACCEPT");
             endpoint->state = 2;
             writeSensorDefs();
             writeTriggerDefs();
           } else {
-            s->println("REJECT");
+            stream->println("REJECT");
           }
         } else {
-          PRINT("STATE ERROR");
+          stream->println("STATE ERROR");
         }
 
         //CONNECT
@@ -163,7 +164,7 @@ class Protocol {
 
 
       } else {
-        s->println("PROTO ERROR");
+        stream->println("PROTO ERROR");
       }
     }
 
@@ -179,10 +180,10 @@ class Protocol {
           char buffer[512];
           sensor->putValue(buffer);
           sensor->fresh();
-          s->print("SET ");
-          s->print(sensor->getName());
-          s->print(" ");
-          s->println(buffer);
+          stream->print("SET ");
+          stream->print(sensor->getName());
+          stream->print(" ");
+          stream->println(buffer);
         }
 
         if (ss->next == NULL)
@@ -194,7 +195,7 @@ class Protocol {
     }
 
     void write() {
-      if (reader == NULL)
+      if (stream == NULL)
         return;
       if (endpoint->state == 2) {
         writeSensors();

@@ -19,7 +19,7 @@ void callback2(TArg args){
 
 
 void setup(Endpoint* e, Protocol* proto) {
-  proto->setReader(new Reader(&Serial));
+  proto->setStream(&Serial);
   pinMode(PC13, OUTPUT);
   Serial.begin(115200);
   
@@ -53,7 +53,7 @@ void loop(Endpoint* e,Protocol* proto) {
   
   
   digitalWrite(PC13, LOW);
-  
+  delay(100);
   digitalWrite(PC13, HIGH);
-  
+  delay(10);
 }
