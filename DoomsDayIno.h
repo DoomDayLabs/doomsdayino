@@ -1,5 +1,6 @@
 #include "protocol.hpp"
 
+#ifndef DOOMSDAYINO_USE_AS_LIB
 void setup(Endpoint* e, Protocol* proto);
 void loop(Endpoint* e, Protocol* proto);
 
@@ -15,4 +16,4 @@ void loop(){
   loop(&endpoint,&proto);
   proto.write();
 }
-
+#endif

@@ -26,16 +26,22 @@ class Reader {
       if (stream == NULL)
         return NULL;
       while (stream->available() > 0) {
-        char c = stream->read();
+        char c = stream->read();               
+        if (c == '\r'){
+          continue;
+        }
+        
         if (c == '\n') {
           buffer[pos] = 0;
           pos = 0;
+          
           return buffer;
         }
         buffer[pos] = c;
         pos++;
-      }
+      }      
       return NULL;
+      
     }
 
 };
@@ -136,7 +142,7 @@ class Protocol {
       if (stream == NULL)
         return;
       char* cmd = reader.read();
-      if (cmd == NULL) return;
+      if (cmd == NULL) return;      
       char* command = strtok(cmd, " ");
 
       if (strcmp(command, "CONNECT") == 0) {
@@ -147,6 +153,7 @@ class Protocol {
             endpoint->state = 2;
             writeSensorDefs();
             writeTriggerDefs();
+            stream->println("READY");
           } else {
             stream->println("REJECT");
           }
@@ -159,11 +166,12 @@ class Protocol {
         if (endpoint->state == 2) {
           callTrigger();
         } else {
-          PRINT("STATE ERROR");
+          stream->println("STATE ERROR");
         }
 
 
       } else {
+        stream->println(cmd);
         stream->println("PROTO ERROR");
       }
     }

@@ -175,7 +175,7 @@ class ValSensor: public Sensor {
     }
 
     void putValue(char* buf) {
-      char* option = options[val];
+      const char* option = options[val];
       strcpy(buf, option);
     }
 };
