@@ -30,7 +30,11 @@ class IntParam: public Param {
     }
 
     bool validate(char* p) {
-      if (strspn(p, "0123456789") != strlen(p)) return false;
+      //if (strspn(p, "0123456789") != strlen(p)) return false;
+      for(int i=0;i<strlen(p);i++){
+        if (!isDigit(p[i]))
+    	    return false;
+      }
       int v = atoi(p);
       return v >= min && v <= max;
     }

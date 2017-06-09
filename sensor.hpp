@@ -55,6 +55,7 @@ class IntSensor: public Sensor {
 
     }
     void set(int val) {
+      if (this->val == val) return;
       if (val < min) val = min;
       if (val > max) val = max;
       this->val = val;
@@ -84,6 +85,7 @@ class FloatSensor: public Sensor {
     }
 
     void set(float val) {
+      if (this->val == val) return;
       if (val < min) val = min;
       if (val > max) val = max;
       this->val = val;
@@ -104,9 +106,11 @@ class StrSensor: public Sensor {
       sprintf(buf, "SENSOR %s STR", name);
       this->setDef(buf);
       this->val = (char*)malloc(8);
+      memset(this->val,0,8);
     }
 
     void set(const char* v) {
+      if (strcmp(v,this->val)==0) return;
       free(val);
       val = (char*)(malloc(strlen(v)));
       strcpy(val, v);
@@ -129,6 +133,7 @@ class BoolSensor: public Sensor {
     }
 
     void set(const bool v) {
+      if (val==v) return;
       val = v;
       update();
     }
@@ -170,6 +175,7 @@ class ValSensor: public Sensor {
     }
 
     void set(int val) {
+      if (this->val == val) return;
       this->val = val;
       update();
     }
@@ -207,6 +213,7 @@ class FlagSensor: public Sensor {
       va_end(ap);
       setDef(buf);
     }
+
     void set(int i) {
       this->val = val | (1 << i);
       update();
