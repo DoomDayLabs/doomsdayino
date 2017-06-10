@@ -55,9 +55,10 @@ class IntSensor: public Sensor {
 
     }
     void set(int val) {
-      if (this->val == val) return;
+      
       if (val < min) val = min;
       if (val > max) val = max;
+      if (this->val == val) return;
       this->val = val;
       update();
     }
@@ -85,9 +86,9 @@ class FloatSensor: public Sensor {
     }
 
     void set(float val) {
-      if (this->val == val) return;
       if (val < min) val = min;
       if (val > max) val = max;
+      if (this->val == val) return;
       this->val = val;
       update();
     }

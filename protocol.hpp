@@ -68,6 +68,9 @@ class Protocol {
       PRINTLN(paramCount);
       for (int i = 0; i < paramCount; i++) {
         char* param = strtok(NULL, " ");
+        if (param == NULL){
+    	    return;
+        }
         strParams[i] = param;
         PRINT(i);
         PRINT("=");
