@@ -225,7 +225,7 @@ class Protocol {
     void write() {
       if (stream == NULL)
         return;
-      if (endpoint->state == 2) {
+      if (endpoint->state == 3) {
         writeSensors();
       }
     }
