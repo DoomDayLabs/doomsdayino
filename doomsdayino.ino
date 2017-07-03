@@ -5,9 +5,9 @@ IntSensor tempe("TEMP",10,100);
 StrSensor str("STR");
 
 Trigger<0> t1("T1");
-Trigger<1> t2("T2", new IntParam(10, 100));
-Trigger<1> t3("T3", new ValParam<3>(OPTS{"OPT1","OPT2","OPT3"}));
-Trigger<1> t4("T4", new FlagParam<2>(OPTS{"FLAG1","FLAG2"}));
+Trigger<1> t2("T2", new IntParam("INTPARAM", 10, 100));
+Trigger<1> t3("T3", new ValParam<3>("VALPARAM","IOPT1","IOPT2","IOPT3"));
+Trigger<1> t4("T4", new FlagParam<2>("FLAGPARAM" ,"IFLAG1","IFLAG2"));
  
 
 void callback1(TArg args){
@@ -20,7 +20,7 @@ void callback2(TArg args){
 
 void setup(Endpoint* e, Protocol* proto) {
   proto->setStream(&Serial);
-  pinMode(PC13, OUTPUT);
+//  pinMode(PC13, OUTPUT);
   Serial.begin(115200);
   
   e->setPin("111");
@@ -51,9 +51,10 @@ void loop(Endpoint* e,Protocol* proto) {
     str.set(buf);
   }
   
-  
+/*  
   digitalWrite(PC13, LOW);
   delay(100);
   digitalWrite(PC13, HIGH);
   delay(10);
+ */
 }

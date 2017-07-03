@@ -50,12 +50,12 @@ class IntSensor: public Sensor {
       this->val = min;
 
       char buf[1024];
-      sprintf(buf, "SENSOR %s INT %d %d", name, min, max);
+      sprintf(buf, "SENSOR %s INT (%d,%d)", name, min, max);
       this->setDef(buf);
 
     }
     void set(int val) {
-      
+
       if (val < min) val = min;
       if (val > max) val = max;
       if (this->val == val) return;
@@ -81,7 +81,7 @@ class FloatSensor: public Sensor {
       this->min = min;
       this->max = max;
       char buf[1024];
-      sprintf(buf, "SENSOR %s FLOAT %f %f", name, min, max);
+      sprintf(buf, "SENSOR %s FLOAT (%f,%f)", name, min, max);
       this->setDef(buf);
     }
 
@@ -107,11 +107,11 @@ class StrSensor: public Sensor {
       sprintf(buf, "SENSOR %s STR", name);
       this->setDef(buf);
       this->val = (char*)malloc(8);
-      memset(this->val,0,8);
+      memset(this->val, 0, 8);
     }
 
     void set(const char* v) {
-      if (strcmp(v,this->val)==0) return;
+      if (strcmp(v, this->val) == 0) return;
       free(val);
       val = (char*)(malloc(strlen(v)));
       strcpy(val, v);
@@ -134,7 +134,7 @@ class BoolSensor: public Sensor {
     }
 
     void set(const bool v) {
-      if (val==v) return;
+      if (val == v) return;
       val = v;
       update();
     }
@@ -156,7 +156,7 @@ class ValSensor: public Sensor {
   public:
     ValSensor(const char* name, ...): Sensor(name) {
       char buf[1024];
-      sprintf(buf, "SENSOR %s VAL ", name);
+      sprintf(buf, "SENSOR %s VAL (", name);
 
 
       va_list ap;
@@ -168,8 +168,11 @@ class ValSensor: public Sensor {
         strcat(buf, opt);
         if (i < argCount - 1) {
           strcat(buf, ",");
+        } else {
+          strcat(buf, ")");
         }
       }
+
       va_end(ap);
 
       setDef(buf);
@@ -197,7 +200,7 @@ class FlagSensor: public Sensor {
   public:
     FlagSensor(const char* name, ...): Sensor(name) {
       char buf[1024];
-      sprintf(buf, "SENSOR %s FLAG ", name);
+      sprintf(buf, "SENSOR %s FLAG (", name);
 
 
       va_list ap;
@@ -209,6 +212,8 @@ class FlagSensor: public Sensor {
         strcat(buf, opt);
         if (i < argCount - 1) {
           strcat(buf, ",");
+        } else {
+          strcat(buf, ")");
         }
       }
       va_end(ap);

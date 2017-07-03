@@ -144,7 +144,7 @@ class Protocol {
     void read() {
       if (stream == NULL)
         return;
-      char* cmd = reader.read();
+      char* cmd = reader.read();      
       if (cmd == NULL) return;      
       char* command = strtok(cmd, " ");
 
@@ -154,24 +154,41 @@ class Protocol {
           if (strcmp(endpoint->getPin(), pin) == 0) {
             stream->println("ACCEPT");
             endpoint->state = 2;
-            writeSensorDefs();
-            writeTriggerDefs();
-            stream->println("READY");
+            /*
+            
+            */
           } else {
             stream->println("REJECT");
           }
         } else {
           stream->println("STATE ERROR");
         }
-
-        //CONNECT
+        
+      } else if (strcmp(command, "PROFILE") == 0){
+        if (endpoint->state == 2){
+          writeSensorDefs();
+          writeTriggerDefs();
+          stream->println("READY");
+          endpoint->state = 3;          
+        } else {
+          stream->println("STATE ERROR");
+        }
+        
+        
+      } else if (strcmp(command, "READY") == 0){
+        if (endpoint->state == 2){
+          stream->println("READY");
+          endpoint->state = 3;        
+        } else {
+          stream->println("STATE ERROR");
+        }
+                
       } else if (strcmp(command, "CALL") == 0) {
-        if (endpoint->state == 2) {
+        if (endpoint->state == 3) {
           callTrigger();
         } else {
           stream->println("STATE ERROR");
         }
-
 
       } else {
         stream->println(cmd);

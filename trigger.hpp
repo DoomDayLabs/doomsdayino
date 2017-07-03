@@ -21,11 +21,11 @@ class IntParam: public Param {
   private:
     int min, max;
   public:
-    IntParam(int min, int max) {
+    IntParam(const char* name, int min, int max) {
       this->min = min;
       this->max = max;
       char buf[512];
-      sprintf(buf, "INT %d %d ", min, max);
+      sprintf(buf, "INT %s (%d,%d) ",name, min, max);
       setDef(buf);
     }
 
@@ -45,11 +45,11 @@ class FloatParam: public Param {
   private:
     float min, max;
   public:
-    FloatParam(float min, float max) {
+    FloatParam(const char* name,float min, float max) {
       this->min = min;
       this->max = max;
       char buf[512];
-      sprintf(buf, "FLOAT %f %f ", min, max);
+      sprintf(buf, "FLOAT %s (%f,%f) ",name, min, max);
       setDef(buf);
     }
 
@@ -64,8 +64,10 @@ class StrParam: public Param {
   private:
     //float min;
   public:
-    StrParam(): Param() {
-      setDef((char*)"STR ");
+    StrParam(const char* name): Param() {
+      char buf[512];
+      sprintf(buf,"STR %s",name);
+      setDef(buf);
     }
     bool validate(char* p) {
       return true;
@@ -76,8 +78,10 @@ class BoolParam: public Param {
   private:
 
   public:
-    BoolParam(): Param() {
-      setDef((char*)"BOOL ");
+    BoolParam(const char* name): Param() {
+      char buf[512];
+      sprintf(buf,"STR %s",name);
+      setDef(buf);      
     }
 
     bool validate(char* p) {
@@ -91,18 +95,23 @@ class ValParam: public Param {
   private:
     const char* opts[count];
   public:
-    ValParam(const char* s[count]) {
+    ValParam(const char* name, ...):Param() {
       char buf[1024];
-      strcpy(buf, "VAL ");
-
+      sprintf(buf, "VAL %s (",name);      
+      va_list ap;
+      va_start(ap,name);
+      
       for (int i = 0; i < count; i++) {
-        opts[i] = s[i];
-        strcat(buf, s[i]);
+        const char* opt = va_arg(ap, const char*);
+        opts[i] = opt;
+        strcat(buf, opt);
         if (i < count - 1) {
           strcat(buf, ",");
+        } else {
+          strcat(buf, ") ");
         }
       }
-      strcat(buf, " ");
+      va_end(ap);      
       setDef(buf);
     }
     bool validate(char* p) {
@@ -119,20 +128,27 @@ class FlagParam: public Param {
   private:
     const char* flags[count];
   public:
-    FlagParam(const char* f[count]) {
-      char buff[1024];
-      memset(buff, 0, 1024);
-      strcpy(buff, "FLAG ");
+    FlagParam(const char* name, ...) {
+      char buf[1024];
+      memset(buf, 0, 1024);
+      sprintf(buf,"FLAG %s (",name);
+
+      va_list ap;
+      va_start(ap,name);
 
       for (int i = 0; i < count; i++) {
-        flags[i] = f[i];
-        strcat(buff, f[i]);
+        const char* flag = va_arg(ap, const char*);
+        flags[i] = flag;
+        strcat(buf, flag);
         if (i < count - 1) {
-          strcat(buff, ",");
+          strcat(buf, ",");
+        } else {
+          
         }
       }
-      strcat(buff, " ");
-      setDef(buff);
+      va_end(ap);
+      strcat(buf, ") ");
+      setDef(buf);
     }
     bool validate(char* p) {
       return false;
