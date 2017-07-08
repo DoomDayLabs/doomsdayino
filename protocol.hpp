@@ -1,4 +1,5 @@
 #include "endpoint.hpp"
+
 #ifdef debug
 #define PRINT(a) Serial.print(a)
 #define PRINTLN(a) Serial.println(a)
@@ -25,21 +26,31 @@ class Reader {
     char* read() {
       if (stream == NULL)
         return NULL;
+      PRINT("READ:");
       while (stream->available() > 0) {
-        char c = stream->read();               
+        char c = stream->read();
+        PRINT(c);
         if (c == '\r'){
           continue;
         }
         
         if (c == '\n') {
           buffer[pos] = 0;
+          if (pos>0){
+    	    PRINTLN("Readed ");
+    	    PRINTLN(buffer);
+    	  }
           pos = 0;
-          
+
           return buffer;
         }
         buffer[pos] = c;
         pos++;
       }      
+      if (pos>0){
+        PRINTLN("Readed ");
+        PRINTLN(buffer);
+      }
       return NULL;
       
     }
@@ -139,6 +150,9 @@ class Protocol {
     void setStream(Stream* s) {
       this->reader.setStream(s);
       this->stream = s;
+      if (s!=NULL){
+          this->stream->println("HELO");
+      }
     }
 
     void read() {
@@ -146,6 +160,8 @@ class Protocol {
         return;
       char* cmd = reader.read();      
       if (cmd == NULL) return;      
+      PRINT("COMMAND ");
+      PRINTLN(cmd);
       char* command = strtok(cmd, " ");
 
       if (strcmp(command, "CONNECT") == 0) {
@@ -169,7 +185,8 @@ class Protocol {
           writeSensorDefs();
           writeTriggerDefs();
           stream->println("READY");
-          endpoint->state = 3;          
+          endpoint->state = 3;
+          writeSensors(true);          
         } else {
           stream->println("STATE ERROR");
         }
@@ -178,7 +195,8 @@ class Protocol {
       } else if (strcmp(command, "READY") == 0){
         if (endpoint->state == 2){
           stream->println("READY");
-          endpoint->state = 3;        
+          endpoint->state = 3;
+          writeSensors(true);       
         } else {
           stream->println("STATE ERROR");
         }
@@ -197,14 +215,14 @@ class Protocol {
     }
 
 
-    void writeSensors() {
+    void writeSensors(bool always=false) {
 
       str_sensor* ss = endpoint->getSensor();
 
       while (ss->s != NULL) {
         Sensor* sensor = ss->s;
 
-        if (sensor->isChanged()) {
+        if (sensor->isChanged()||always) {
           char buffer[512];
           sensor->putValue(buffer);
           sensor->fresh();
